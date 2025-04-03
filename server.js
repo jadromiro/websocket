@@ -9,16 +9,17 @@ wss.on('connection', (ws) => {
         if (isBinary) {
             
 
-        const reader = new FileReader();
-        reader.onload = () => {
-            console.log(new Uint8Array(reader.result)); // Decoded binary
-        };
-       
-	console.log("Received binary data:", reader.readAsArrayBuffer(event.data));
+    if (message.data instanceof Blob) {
+        message.data.arrayBuffer().then((buffer) => {
+            const decoder = new TextDecoder();
+            const text = decoder.decode(new Uint8Array(buffer));
+	
+	console.log("Received binary data:", reader.readAsArrayBuffer(event.data));        
+	console.log("Decoded binary data:", text);
 
 	//console.log("Received binary data:", new Uint8Array(message));
         // Echo back the binary message
-        ws.send(message, { binary: true });
+        ws.send(text, { binary: false });
 
         } else {
             console.log("Received text message:", message.toString());
